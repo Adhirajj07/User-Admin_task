@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="user-dashboard.html" class="navbar-brand">User Portal</a>
+    <div class="nav-links">
+      <a href="profile.html">Profile</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h2>Submit New Creation Request</h2>
+      <form id="createForm" style="margin-top: 1rem;">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="title" required>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <input type="text" id="category" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="description" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn">Submit Request</button>
+      </form>
+    </div>
+
+    <h2>My Active Resources</h2>
+    <div id="resourceGrid" class="grid" style="margin-bottom: 2rem;"></div>
+
+    <h2>My Request Logs</h2>
+    <div class="card table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Resource Title</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Admin Remark</th>
+          </tr>
+        </thead>
+        <tbody id="requestsTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Access Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- FontAwesome for eye icon and avatars -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Engaging UI Styles */
+    .auth-card {
+      max-width: 420px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .role-toggle {
+      display: flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .role-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0.6rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #64748b;
+      transition: all 0.2s ease;
+    }
+
+    .role-btn.active {
+      background: #ffffff;
+      color: #2563eb;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #94a3b8;
+      transition: color 0.2s;
+    }
+
+    .password-toggle:hover {
+      color: #2563eb;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: transform 0.1s ease, background 0.2s ease;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    .auth-links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 1rem;
+    }
+
+    .auth-links a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card auth-card">
+    <!-- Role Switcher -->
+    <div class="role-toggle">
+      <button type="button" class="role-btn active" id="userRoleBtn" onclick="setRole('User')">
+        <i class="fa-solid fa-user"></i> User
+      </button>
+      <button type="button" class="role-btn" id="adminRoleBtn" onclick="setRole('Admin')">
+        <i class="fa-solid fa-user-shield"></i> Admin
+      </button>
+    </div>
+
+    <!-- Dynamic Header -->
+    <h2 id="loginTitle" style="text-align: center; margin-bottom: 0.25rem;">Welcome Back! 👋</h2>
+    <p id="loginSub" style="color: #64748b; text-align: center; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      Enter your credentials to access your user account.
+    </p>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="display: block; font-weight: 500; margin-bottom: 0.4rem;">Email Address</label>
+        <input type="email" id="email" placeholder="name@example.com" required style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 500; margin-bottom: 0.4rem;">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="••••••••" required style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;">
+          <i class="fa-solid fa-eye password-toggle" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-submit" id="submitBtn">Login as User</button>
+    </form>
+
+    <!-- Quick Links -->
+    <div class="auth-links">
+      <a href="forgot-password.html">Forgot password?</a>
+      <a href="signup.html">Create an account</a>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/auth.js"></script>
+
+  <!-- Interactive Script for Tab Switching & Eye Toggle -->
+  <script>
+    function setRole(role) {
+      const userBtn = document.getElementById('userRoleBtn');
+      const adminBtn = document.getElementById('adminRoleBtn');
+      const title = document.getElementById('loginTitle');
+      const sub = document.getElementById('loginSub');
+      const submitBtn = document.getElementById('submitBtn');
+      const emailInput = document.getElementById('email');
+
+      if (role === 'Admin') {
+        adminBtn.classList.add('active');
+        userBtn.classList.remove('active');
+        title.innerText = 'Admin Portal 🛡️';
+        sub.innerText = 'Sign in with system administrator credentials.';
+        submitBtn.innerText = 'Login as Admin';
+        emailInput.value = 'admin@system.com'; // Auto-fills default admin email for convenience
+      } else {
+        userBtn.classList.add('active');
+        adminBtn.classList.remove('active');
+        title.innerText = 'Welcome Back! 👋';
+        sub.innerText = 'Enter your credentials to access your user account.';
+        submitBtn.innerText = 'Login as User';
+        emailInput.value = '';
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      const icon = document.getElementById('togglePasswordIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+  </script>
+</body>
+</html>

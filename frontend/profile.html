@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="user-dashboard.html" class="navbar-brand">User Portal</a>
+    <div class="nav-links">
+      <a href="user-dashboard.html">Dashboard</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card auth-card">
+      <h2>User Profile</h2>
+      <p><strong>Name:</strong> <span id="profName"></span></p>
+      <p><strong>Email:</strong> <span id="profEmail"></span></p>
+      <p><strong>Role:</strong> <span id="profRole"></span></p>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    checkAuth();
+    const user = getUser();
+    document.getElementById('profName').innerText = user.name;
+    document.getElementById('profEmail').innerText = user.email;
+    document.getElementById('profRole').innerText = user.role;
+  </script>
+</body>
+</html>
