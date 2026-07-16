@@ -43,3 +43,34 @@ function showAlert(elementId, message, type = 'error') {
   el.innerText = message;
   el.classList.remove('hidden');
 }
+// Universal In-Screen Toast Notification Function
+function showNotification(message, type = 'success') {
+  // Ensure toast container exists
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  // Create toast item
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  // Icon based on type
+  const icon = type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : 'ℹ️ ';
+
+  toast.innerHTML = `
+    <span>${icon} ${message}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+  `;
+
+  container.appendChild(toast);
+
+  // Automatically remove toast after 4 seconds
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
