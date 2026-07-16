@@ -33,38 +33,45 @@ if (signupForm) {
   });
 }
 
-// Login Form Handler
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if (data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        if (data.user.role === 'Admin') {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, { // Ensure route matches your backend (e.g. /auth/login or /login)
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      // Save JWT token and user info
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user || data));
+
+      showNotification('Login successful!', 'success');
+
+      // Check role and redirect
+      const userRole = data.user ? data.user.role : data.role;
+
+      setTimeout(() => {
+        if (userRole === 'admin') {
           window.location.href = 'admin-dashboard.html';
         } else {
           window.location.href = 'user-dashboard.html';
         }
-      } else {
-        showAlert('alert', data.message);
-      }
-    } catch (err) {
-      showAlert('alert', 'Login failed. Check your credentials.');
+      }, 800);
+    } else {
+      showNotification(data.message || 'Login failed. Invalid credentials.', 'error');
     }
-  });
-}
-
+  } catch (err) {
+    showNotification('Network error. Please try again.', 'error');
+  }
+});
 // Forgot Password Handler
 const forgotForm = document.getElementById('forgotForm');
 if (forgotForm) {
