@@ -1,4 +1,4 @@
-const API_BASE = 'https://user-admin-task.onrender.com';
+const API_BASE = 'https://user-admin-task.onrender.com/api';
 
 function getToken() {
   return localStorage.getItem('token');
