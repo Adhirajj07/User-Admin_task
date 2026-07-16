@@ -188,3 +188,115 @@ th { background-color: #f1f5f9; }
     margin-bottom: 0.25rem;
   }
 }
+/* ==========================================
+   GLOBAL RESPONSIVE OVERHAUL
+   ========================================== */
+
+/* 1. Reset Body & Layout Container */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+}
+
+main, .container {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* 2. Responsive Cards & Auth Forms */
+.card, .auth-card {
+  width: 100%;
+  max-width: 440px; /* Expands nicely on mobile */
+  margin: 2rem auto;
+  padding: 2rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  width: 100%;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem; /* Prevents iOS auto-zoom on input focus */
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  box-sizing: border-box;
+}
+
+/* 3. Navigation Bar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 4. Dashboard Tables (Scrollable on small mobile screens) */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px; /* Prevents columns from crushing */
+}
+
+/* ==========================================
+   MOBILE BREAKPOINTS (Under 600px)
+   ========================================== */
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .card, .auth-card {
+    margin: 1rem auto;
+    padding: 1.5rem 1rem;
+    width: 92%; /* Takes full advantage of screen width */
+  }
+
+  h1, h2 {
+    font-size: 1.5rem;
+  }
+}
