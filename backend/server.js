@@ -4,19 +4,17 @@ dns.setServers(['8.8.8.8', '8.8.4.4']); // DNS fix for MongoDB SRV
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const bcrypt = require('bcryptjs');
 const connectDB = require('./config/db');
 const User = require('./models/User');
 const errorHandler = require('./middleware/errorMiddleware');
 
 dotenv.config();
-connectDB();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Function to seed default Admin automatically
+// Seed default Admin user
 const seedAdmin = async () => {
   try {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@system.com';
@@ -25,11 +23,11 @@ const seedAdmin = async () => {
 
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      // Pass plain password directly so Mongoose pre-save hook hashes it once
       await User.create({
         name: adminName,
         email: adminEmail,
-        password: hashedPassword,
+        password: adminPassword,
         role: 'Admin'
       });
       console.log(`✅ Default Admin created: ${adminEmail}`);
@@ -41,14 +39,30 @@ const seedAdmin = async () => {
   }
 };
 
-// Seed admin right after database connects
-seedAdmin();
+// Start Server Wrapper
+const startServer = async () => {
+  try {
+    // 1. Connect DB first
+    await connectDB();
 
-// Routes
-app.use('/api', require('./routes/authRoutes'));
-app.use('/api', require('./routes/requestRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
-app.use(errorHandler);
+    // 2. Seed Admin after connection is ready
+    await seedAdmin();
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    // 3. Routes
+    app.use('/api/auth', require('./routes/authRoutes'));
+    app.use('/api/requests', require('./routes/requestRoutes'));
+    app.use('/api/admin', require('./routes/adminRoutes'));
+
+    // Global Error Middleware
+    app.use(errorHandler);
+
+    // 4. Start HTTP listener
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
