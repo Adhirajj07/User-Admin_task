@@ -1,4 +1,4 @@
-// Ensure user is logged in before rendering dashboard data
+// Ensure user is logged in
 if (!localStorage.getItem('token')) {
   window.location.href = 'login.html';
 }
@@ -12,7 +12,7 @@ function authHeaders() {
 }
 
 // -------------------------------------------------------------
-// 1. FETCH & DISPLAY USER REQUEST LOGS
+// 1. FETCH & DISPLAY USER REQUEST LOGS (FIXED FOR OBJECT RESPONSES)
 // -------------------------------------------------------------
 async function loadUserRequests() {
   const tableBody = document.getElementById('requestsTable');
@@ -24,46 +24,53 @@ async function loadUserRequests() {
       headers: authHeaders()
     });
 
+    if (!res.ok) {
+      tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Failed to load requests.</td></tr>`;
+      return;
+    }
+
     const data = await res.json();
 
-    if (res.ok) {
-      tableBody.innerHTML = '';
+    // Safely extract the array whether data is [...] or { requests: [...] } or { data: [...] }
+    const requestsArray = Array.isArray(data) 
+      ? data 
+      : (data.requests || data.data || []);
 
-      if (!data || data.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No request logs found.</td></tr>`;
-        return;
-      }
+    tableBody.innerHTML = '';
 
-      data.forEach(req => {
-        const row = document.createElement('tr');
-        
-        // Status badge colors
-        const statusClass = req.status === 'Approved' ? 'text-success' : 
-                            req.status === 'Rejected' ? 'text-danger' : 'text-warning';
-
-        const formattedDate = req.createdAt 
-          ? new Date(req.createdAt).toLocaleDateString() 
-          : new Date().toLocaleDateString();
-
-        row.innerHTML = `
-          <td>${req.operation || 'Creation'}</td>
-          <td>${req.title || 'N/A'}</td>
-          <td><strong class="${statusClass}">${req.status || 'Pending'}</strong></td>
-          <td>${formattedDate}</td>
-          <td>${req.adminRemark || '-'}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-    } else {
-      showNotification(data.message || 'Failed to fetch request logs.', 'error');
+    if (!Array.isArray(requestsArray) || requestsArray.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No request logs found.</td></tr>`;
+      return;
     }
+
+    requestsArray.forEach(req => {
+      const row = document.createElement('tr');
+      
+      const status = req.status || 'Pending';
+      const statusClass = status.toLowerCase() === 'approved' ? 'text-success' : 
+                          status.toLowerCase() === 'rejected' ? 'text-danger' : 'text-warning';
+
+      const formattedDate = req.createdAt 
+        ? new Date(req.createdAt).toLocaleDateString() 
+        : '-';
+
+      row.innerHTML = `
+        <td>${req.operation || req.type || 'Creation'}</td>
+        <td>${req.title || req.resourceTitle || req.name || 'N/A'}</td>
+        <td><strong class="${statusClass}">${status}</strong></td>
+        <td>${formattedDate}</td>
+        <td>${req.adminRemark || req.remark || '-'}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
   } catch (err) {
     console.error('Error loading user requests:', err);
   }
 }
 
 // -------------------------------------------------------------
-// 2. FETCH & DISPLAY ACTIVE RESOURCES
+// 2. FETCH & DISPLAY ACTIVE RESOURCES (SAFE FETCH)
 // -------------------------------------------------------------
 async function loadUserResources() {
   const grid = document.getElementById('resourceGrid');
@@ -75,27 +82,33 @@ async function loadUserResources() {
       headers: authHeaders()
     });
 
-    const data = await res.json();
-
-    if (res.ok) {
-      grid.innerHTML = '';
-
-      if (!data || data.length === 0) {
-        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748b;">No active resources available yet.</p>`;
-        return;
-      }
-
-      data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3>${item.title}</h3>
-          <p><strong>Category:</strong> ${item.category || 'General'}</p>
-          <p>${item.description || ''}</p>
-        `;
-        grid.appendChild(card);
-      });
+    // Handle 404 cleanly without crashing res.json()
+    if (!res.ok) {
+      grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748b;">No active resources available.</p>`;
+      return;
     }
+
+    const data = await res.json();
+    const resourcesArray = Array.isArray(data) ? data : (data.resources || data.data || []);
+
+    grid.innerHTML = '';
+
+    if (resourcesArray.length === 0) {
+      grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748b;">No active resources available yet.</p>`;
+      return;
+    }
+
+    resourcesArray.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3>${item.title || 'Untitled'}</h3>
+        <p><strong>Category:</strong> ${item.category || 'General'}</p>
+        <p>${item.description || ''}</p>
+      `;
+      grid.appendChild(card);
+    });
+
   } catch (err) {
     console.error('Error loading resources:', err);
   }
@@ -124,13 +137,8 @@ if (createForm) {
       const data = await res.json();
 
       if (res.ok) {
-        // 🌟 In-screen Toast Notification
         showNotification('Creation request submitted successfully!', 'success');
-
-        // Clear input form
         createForm.reset();
-
-        // Refresh data tables immediately
         loadUserRequests();
         loadUserResources();
       } else {
